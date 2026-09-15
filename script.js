@@ -1,7 +1,5 @@
 $(document).ready(function () {
-  /* ==================================================
-   PRODUCT DATA
-================================================== */
+  //    PRODUCT DATA
 
   const products = [
     {
@@ -235,9 +233,7 @@ $(document).ready(function () {
     },
   ];
 
-  /* ==================================================
-   VARIABLES
-================================================== */
+  //    VARIABLES
 
   let cart = JSON.parse(localStorage.getItem("menzoCart")) || [];
 
@@ -245,17 +241,13 @@ $(document).ready(function () {
 
   let currentSearch = "";
 
-  /* ==================================================
-   MONEY
-================================================== */
+  //    MONEY
 
   function money(amount) {
     return "₹" + amount.toLocaleString("en-IN");
   }
 
-  /* ==================================================
-   CATEGORY NAME
-================================================== */
+  //    CATEGORY NAME
 
   function categoryName(category) {
     if (category === "shirt") return "Shirts";
@@ -273,9 +265,7 @@ $(document).ready(function () {
     return category;
   }
 
-  /* ==================================================
-   DISPLAY PRODUCTS
-================================================== */
+  //    DISPLAY PRODUCTS
 
   function renderProducts() {
     let list = products.slice();
@@ -485,17 +475,16 @@ $(document).ready(function () {
     $("#productGrid").html(html);
   }
 
-  /* ==================================================
-   SAVE CART
-================================================== */
+//    SAVE CART
+
 
   function saveCart() {
     localStorage.setItem("menzoCart", JSON.stringify(cart));
   }
 
-  /* ==================================================
-   DISPLAY CART
-================================================== */
+  
+//    DISPLAY CART
+
 
   function renderCart() {
     let html = "";
@@ -634,9 +623,9 @@ $(document).ready(function () {
     $("#grandTotal").text(money(total));
   }
 
-  /* ==================================================
-   TOAST
-================================================== */
+ 
+//    TOAST
+
 
   function showToast(message) {
     $("#toastText").text(message);
@@ -646,9 +635,9 @@ $(document).ready(function () {
     ).show();
   }
 
-  /* ==================================================
+  /* 
    ADD TO CART
-================================================== */
+ */
 
   $(document).on("click", ".add-cart", function () {
     let id = Number($(this).data("id"));
@@ -674,9 +663,9 @@ $(document).ready(function () {
     showToast("Item added to cart!");
   });
 
-  /* ==================================================
+  /* 
    PLUS / MINUS
-================================================== */
+*/
 
   $(document).on("click", ".qty-btn", function () {
     let id = Number($(this).data("id"));
@@ -708,9 +697,9 @@ $(document).ready(function () {
     renderCart();
   });
 
-  /* ==================================================
+  /*
    REMOVE
-================================================== */
+ */
 
   $(document).on("click", ".remove-btn", function () {
     let id = Number($(this).data("id"));
@@ -726,9 +715,9 @@ $(document).ready(function () {
     showToast("Item removed from cart.");
   });
 
-  /* ==================================================
+  /* 
    CLEAR CART
-================================================== */
+ */
 
   $("#clearCart").click(function () {
     cart = [];
@@ -740,9 +729,9 @@ $(document).ready(function () {
     showToast("Cart cleared.");
   });
 
-  /* ==================================================
+  /* 
    BUY NOW
-================================================== */
+ */
 
   $("#buyBtn").click(function () {
     if (cart.length === 0) {
@@ -827,9 +816,9 @@ $(document).ready(function () {
     renderCart();
   });
 
-  /* ==================================================
+  /* 
    FILTER
-================================================== */
+ */
 
   $(".filter-btn").click(function () {
     $(".filter-btn").removeClass("active");
@@ -845,9 +834,9 @@ $(document).ready(function () {
     });
   });
 
-  /* ==================================================
+  /* 
    CATEGORY BUTTON
-================================================== */
+ */
 
   $(".category-btn").click(function () {
     let category = $(this).data("category");
@@ -865,17 +854,17 @@ $(document).ready(function () {
     });
   });
 
-  /* ==================================================
+  /*
    SORT
-================================================== */
+*/
 
   $("#sortSelect").change(function () {
     renderProducts();
   });
 
-  /* ==================================================
+  /*
    SEARCH OPEN
-================================================== */
+ */
 
   $("#searchToggle").click(function () {
     $("#searchBox").toggleClass("show");
@@ -885,9 +874,9 @@ $(document).ready(function () {
     }
   });
 
-  /* ==================================================
+  /*
    SEARCH
-================================================== */
+ */
 
   $("#searchInput").on("input", function () {
     currentSearch = $(this).val().trim();
@@ -895,9 +884,9 @@ $(document).ready(function () {
     renderProducts();
   });
 
-  /* ==================================================
+  /*
    CLEAR SEARCH
-================================================== */
+*/
 
   $("#clearSearch").click(function () {
     $("#searchInput").val("");
@@ -909,9 +898,9 @@ $(document).ready(function () {
     $("#searchInput").focus();
   });
 
-  /* ==================================================
+  /* 
    WISHLIST
-================================================== */
+*/
 
   $(document).on("click", ".wishlist-btn", function () {
     let id = Number($(this).data("id"));
@@ -931,9 +920,9 @@ $(document).ready(function () {
     }
   });
 
-  /* ==================================================
+  /* 
    LOGIN
-================================================== */
+ */
 
   $("#loginForm").submit(function (event) {
     event.preventDefault();
@@ -949,9 +938,9 @@ $(document).ready(function () {
     this.reset();
   });
 
-  /* ==================================================
+  /* 
    CONTACT
-================================================== */
+ */
 
   $("#contactForm").submit(function (event) {
     event.preventDefault();
@@ -961,9 +950,9 @@ $(document).ready(function () {
     this.reset();
   });
 
-  /* ==================================================
+  /* 
    INITIAL LOAD
-================================================== */
+ */
 
   renderProducts();
 
