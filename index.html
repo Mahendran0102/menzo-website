@@ -79,6 +79,19 @@
               Login
             </button>
 
+            <!-- Wishlist -->
+            <button
+              class="wishlist-nav-btn position-relative"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#wishlistCanvas"
+            >
+              <i class="bi bi-heart"></i>
+
+              <span class="wishlist-label"> Wishlist </span>
+
+              <span id="wishlistCount" class="wishlist-count">0</span>
+            </button>
+
             <!-- Cart -->
             <button
               class="cart-nav-btn position-relative"
@@ -89,7 +102,7 @@
 
               <span class="cart-label"> Cart </span>
 
-              <span id="cartCount" class="cart-count"> 0 </span>
+              <span id="cartCount" class="cart-count">0</span>
             </button>
           </div>
         </div>
@@ -572,7 +585,22 @@
     </footer>
 
     <!-- CART -->
+    <!-- WISHLIST -->
 
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="wishlistCanvas">
+      <div class="offcanvas-header">
+        <h5>
+          <i class="bi bi-heart-fill text-danger"></i>
+          MY WISHLIST
+        </h5>
+
+        <button class="btn-close" data-bs-dismiss="offcanvas"></button>
+      </div>
+
+      <div class="offcanvas-body">
+        <div id="wishlistItems"></div>
+      </div>
+    </div>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="cartCanvas">
       <div class="offcanvas-header">
         <h5>SHOPPING CART</h5>

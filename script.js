@@ -344,7 +344,7 @@ $(document).ready(function () {
     let html = "";
 
     $.each(list, function (index, product) {
-      let wished = localStorage.getItem("menzoWish" + product.id) === "true";
+      let wished = isInWishlist(product.id);
 
       html += `
 
@@ -475,16 +475,13 @@ $(document).ready(function () {
     $("#productGrid").html(html);
   }
 
-//    SAVE CART
-
+  //    SAVE CART
 
   function saveCart() {
     localStorage.setItem("menzoCart", JSON.stringify(cart));
   }
 
-  
-//    DISPLAY CART
-
+  //    DISPLAY CART
 
   function renderCart() {
     let html = "";
@@ -623,9 +620,7 @@ $(document).ready(function () {
     $("#grandTotal").text(money(total));
   }
 
- 
-//    TOAST
-
+  //    TOAST
 
   function showToast(message) {
     $("#toastText").text(message);
@@ -901,24 +896,220 @@ $(document).ready(function () {
   /* 
    WISHLIST
 */
+  /* 
+   WISHLIST
+*/
+
+  function getWishlist() {
+    return JSON.parse(localStorage.getItem("menzoWishlist")) || [];
+  }
+
+  function saveWishlist(wishlist) {
+    localStorage.setItem("menzoWishlist", JSON.stringify(wishlist));
+  }
+
+  /* 
+   CHECK WISHLIST
+*/
+
+  function isInWishlist(id) {
+    let wishlist = getWishlist();
+
+    return wishlist.includes(id);
+  }
+
+  /* 
+   RENDER WISHLIST
+*/
+
+  function renderWishlist() {
+    let wishlist = getWishlist();
+
+    let html = "";
+
+    if (wishlist.length === 0) {
+      html = `
+
+      <div class="empty-wishlist">
+
+        <i class="bi bi-heart"></i>
+
+        <h5 class="mt-3">
+          Your wishlist is empty
+        </h5>
+
+        <p>
+          Save your favourite products here.
+        </p>
+
+        <a
+          href="#shop"
+          class="btn btn-dark"
+          data-bs-dismiss="offcanvas"
+        >
+          EXPLORE PRODUCTS
+        </a>
+
+      </div>
+
+    `;
+    } else {
+      $.each(wishlist, function (index, id) {
+        let product = products.find(function (p) {
+          return p.id === id;
+        });
+
+        if (!product) {
+          return;
+        }
+
+        html += `
+
+        <div class="wishlist-item">
+
+          <img
+            src="${product.image}"
+            alt="${product.name}"
+          >
+
+          <div class="wishlist-item-info">
+
+            <h6>
+              ${product.name}
+            </h6>
+
+            <div class="wishlist-category">
+              ${categoryName(product.category)}
+            </div>
+
+            <div>
+
+              <span class="wishlist-price">
+                ${money(product.price)}
+              </span>
+
+              <span class="wishlist-old-price">
+                ${money(product.oldPrice)}
+              </span>
+
+            </div>
+
+            <div class="wishlist-actions">
+
+              <button
+                class="wishlist-add-cart"
+                data-id="${product.id}"
+              >
+                <i class="bi bi-bag-plus"></i>
+                ADD TO BAG
+              </button>
+
+              <button
+                class="wishlist-remove"
+                data-id="${product.id}"
+              >
+                <i class="bi bi-trash"></i>
+                REMOVE
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      `;
+      });
+    }
+
+    $("#wishlistItems").html(html);
+
+    $("#wishlistCount").text(wishlist.length);
+  }
+
+  /*
+   ADD / REMOVE WISHLIST
+*/
 
   $(document).on("click", ".wishlist-btn", function () {
     let id = Number($(this).data("id"));
 
-    let key = "menzoWish" + id;
+    let wishlist = getWishlist();
 
-    let current = localStorage.getItem(key) === "true";
+    let index = wishlist.indexOf(id);
 
-    localStorage.setItem(key, String(!current));
+    if (index === -1) {
+      wishlist.push(id);
+
+      showToast("Added to wishlist ❤️");
+    } else {
+      wishlist.splice(index, 1);
+
+      showToast("Removed from wishlist.");
+    }
+
+    saveWishlist(wishlist);
 
     renderProducts();
 
-    if (current) {
-      showToast("Removed from wishlist.");
-    } else {
-      showToast("Added to wishlist!");
-    }
+    renderWishlist();
   });
+
+  /*
+   REMOVE FROM WISHLIST
+*/
+
+  $(document).on("click", ".wishlist-remove", function () {
+    let id = Number($(this).data("id"));
+
+    let wishlist = getWishlist();
+
+    wishlist = wishlist.filter(function (itemId) {
+      return itemId !== id;
+    });
+
+    saveWishlist(wishlist);
+
+    renderProducts();
+
+    renderWishlist();
+
+    showToast("Product removed from wishlist.");
+  });
+
+  /*
+   ADD WISHLIST PRODUCT TO CART
+*/
+
+  $(document).on("click", ".wishlist-add-cart", function () {
+    let id = Number($(this).data("id"));
+
+    let existing = cart.find(function (item) {
+      return item.id === id;
+    });
+
+    if (existing) {
+      existing.qty++;
+    } else {
+      cart.push({
+        id: id,
+
+        qty: 1,
+      });
+    }
+
+    saveCart();
+
+    renderCart();
+
+    showToast("Product added to cart! 🛍️");
+  });
+
+  /*
+   INITIAL WISHLIST LOAD
+*/
+
+  renderWishlist();
 
   /* 
    LOGIN
@@ -957,4 +1148,6 @@ $(document).ready(function () {
   renderProducts();
 
   renderCart();
+
+  renderWishlist();
 });
