@@ -668,7 +668,19 @@
 
           <div class="modal-body">
             <label for="variantSize" class="form-label">Size</label>
-            <select id="variantSize" class="form-select mb-3" required></select>
+            <select id="variantSize" class="form-select" required></select>
+            <button
+              type="button"
+              id="sizeGuideToggle"
+              class="btn btn-link p-0 mt-2 mb-3"
+              aria-expanded="false"
+              aria-controls="sizeGuidePanel"
+            >View size guide</button>
+            <div
+              id="sizeGuidePanel"
+              class="size-guide-panel d-none mb-3"
+              aria-live="polite"
+            ></div>
 
             <label for="variantColor" class="form-label">Color</label>
             <select id="variantColor" class="form-select" required></select>
