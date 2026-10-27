@@ -856,7 +856,7 @@ $(document).ready(function () {
       "?text=" +
       encodeURIComponent(message);
 
-    window.open(whatsappUrl, "_blank", "noopener");
+    window.location.href = whatsappUrl;
   });
 
   /* 
