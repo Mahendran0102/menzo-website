@@ -265,6 +265,92 @@ $(document).ready(function () {
     return category;
   }
 
+  const productColors = {
+    1: ["White", "Light Blue", "Navy"],
+    2: ["White", "Light Blue", "Black"],
+    3: ["White"],
+    4: ["Black", "White", "Grey"],
+    5: ["Black"],
+    7: ["Beige"],
+    8: ["Black", "White", "Navy"],
+    9: ["Blue", "Black"],
+    10: ["Dark Blue", "Black"],
+    11: ["Blue", "Black"],
+    12: ["Blue", "Dark Blue", "Black"],
+    13: ["Black"],
+    14: ["Beige"],
+    15: ["Black", "Navy"],
+    16: ["Olive", "Black", "Khaki"],
+    17: ["Black", "Grey", "Navy"],
+    18: ["Grey"],
+    19: ["Black", "Grey"],
+    20: ["Black"],
+    21: ["Blue"],
+    22: ["Black"],
+    23: ["Black", "Olive"],
+    24: ["Black", "Navy"],
+  };
+
+  const topSizes = ["S", "M", "L", "XL", "XXL"];
+  const bottomSizes = ["28", "30", "32", "34", "36", "38"];
+
+  function sizeOptions(product) {
+    return product.category === "jeans" || product.category === "trouser"
+      ? bottomSizes
+      : topSizes;
+  }
+
+  function openVariantModal(productId, cartIndex = null) {
+    const product = products.find(function (item) {
+      return item.id === productId;
+    });
+
+    if (!product) {
+      return;
+    }
+
+    const existingItem = cartIndex === null ? null : cart[cartIndex];
+    if (cartIndex !== null && !existingItem) {
+      return;
+    }
+
+    const colors = productColors[product.id] || ["Black"];
+    pendingVariantSelection = {
+      productId: product.id,
+      cartIndex: cartIndex,
+    };
+
+    $("#variantProductName").text(product.name);
+    $("#variantSize").empty().append(new Option("Choose a size", ""));
+    $("#variantColor").empty().append(new Option("Choose a color", ""));
+
+    $.each(sizeOptions(product), function (index, size) {
+      $("#variantSize").append(new Option(size, size));
+    });
+
+    $.each(colors, function (index, color) {
+      $("#variantColor").append(new Option(color, color));
+    });
+
+    $("#variantSize").val(existingItem ? existingItem.size || "" : "");
+    $("#variantColor").val(
+      existingItem
+        ? existingItem.color || ""
+        : colors.length === 1
+          ? colors[0]
+          : "",
+    );
+    $("#saveVariantBtn").text(
+      cartIndex === null ? "ADD TO BAG" : "SAVE OPTIONS",
+    );
+
+    bootstrap.Modal.getOrCreateInstance(
+      document.getElementById("variantModal"),
+    ).show();
+  }
+
+  let pendingVariantSelection = null;
+
   //    DISPLAY PRODUCTS
 
   function renderProducts() {
@@ -485,36 +571,22 @@ $(document).ready(function () {
 
   function renderCart() {
     let html = "";
-
     let subtotal = 0;
-
     let itemCount = 0;
 
     if (cart.length === 0) {
       html = `
-
             <div class="empty-cart">
-
-                <i class="bi bi-bag-x"></i>
-
-                <p class="mt-3">
-                    Your cart is empty.
-                </p>
-
-                <a
-                    href="#shop"
-                    class="btn btn-dark"
-                    data-bs-dismiss="offcanvas"
-                >
-                    START SHOPPING
-                </a>
-
+              <i class="bi bi-bag-x"></i>
+              <p class="mt-3">Your cart is empty.</p>
+              <a href="#shop" class="btn btn-dark" data-bs-dismiss="offcanvas">
+                START SHOPPING
+              </a>
             </div>
-
         `;
     } else {
       $.each(cart, function (index, item) {
-        let product = products.find(function (p) {
+        const product = products.find(function (p) {
           return p.id === item.id;
         });
 
@@ -522,101 +594,66 @@ $(document).ready(function () {
           return;
         }
 
-        let lineTotal = product.price * item.qty;
+        const lineTotal = product.price * item.qty;
+        const hasOptions = Boolean(item.size && item.color);
+        const optionText = hasOptions
+          ? "Size: " + item.size + " · Color: " + item.color
+          : "Choose size and color before ordering.";
+        const optionAction = hasOptions ? "CHANGE OPTIONS" : "SELECT OPTIONS";
 
         subtotal += lineTotal;
-
         itemCount += item.qty;
 
         html += `
-
-                    <div class="cart-item">
-
-
-                        <img
-                            src="${product.image}"
-                            alt="${product.name}"
-                        >
-
-
-                        <div
-                            class="cart-item-info"
-                        >
-
-                            <h6>
-                                ${product.name}
-                            </h6>
-
-
-                            <strong>
-                                ${money(product.price)}
-                            </strong>
-
-
-                            <div
-                                class="qty-controls"
-                            >
-
-
-                                <button
-                                    class="qty-btn"
-                                    data-id="${product.id}"
-                                    data-action="minus"
-                                >
-                                    −
-                                </button>
-
-
-                                <span>
-                                    ${item.qty}
-                                </span>
-
-
-                                <button
-                                    class="qty-btn"
-                                    data-id="${product.id}"
-                                    data-action="plus"
-                                >
-                                    +
-                                </button>
-
-
-                                <button
-                                    class="remove-btn"
-                                    data-id="${product.id}"
-                                >
-
-                                    <i
-                                        class="bi bi-trash"
-                                    ></i>
-
-                                </button>
-
-
-                            </div>
-
-
-                        </div>
-
-
-                    </div>
-
-                `;
+          <div class="cart-item">
+            <img src="${product.image}" alt="${product.name}">
+            <div class="cart-item-info">
+              <h6>${product.name}</h6>
+              <div class="cart-variant">${optionText}</div>
+              <strong>${money(product.price)}</strong>
+              <button
+                type="button"
+                class="variant-edit-btn"
+                data-cart-index="${index}"
+              >${optionAction}</button>
+              <div class="qty-controls">
+                <button
+                  type="button"
+                  class="qty-btn"
+                  data-cart-index="${index}"
+                  data-action="minus"
+                  aria-label="Decrease quantity"
+                >−</button>
+                <span>${item.qty}</span>
+                <button
+                  type="button"
+                  class="qty-btn"
+                  data-cart-index="${index}"
+                  data-action="plus"
+                  aria-label="Increase quantity"
+                >+</button>
+                <button
+                  type="button"
+                  class="remove-btn"
+                  data-cart-index="${index}"
+                  aria-label="Remove item"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
       });
     }
 
-    let gst = Math.round(subtotal * 0.18);
-
-    let total = subtotal + gst;
+    const gst = Math.round(subtotal * 0.18);
+    const total = subtotal + gst;
 
     $("#cartItems").html(html);
-
     $("#cartCount").text(itemCount);
-
     $("#subtotal").text(money(subtotal));
-
     $("#gst").text(money(gst));
-
     $("#grandTotal").text(money(total));
   }
 
@@ -630,46 +667,97 @@ $(document).ready(function () {
     ).show();
   }
 
-  /* 
-   ADD TO CART
- */
+  /*
+   PRODUCT OPTIONS / ADD TO CART
+*/
+  $(document).on("click", ".add-cart, .wishlist-add-cart", function () {
+    openVariantModal(Number($(this).data("id")));
+  });
 
-  $(document).on("click", ".add-cart", function () {
-    let id = Number($(this).data("id"));
+  $(document).on("click", ".variant-edit-btn", function () {
+    const cartIndex = Number($(this).data("cart-index"));
+    const item = cart[cartIndex];
 
-    let existing = cart.find(function (item) {
-      return item.id === id;
-    });
+    if (item) {
+      openVariantModal(item.id, cartIndex);
+    }
+  });
 
-    if (existing) {
-      existing.qty++;
-    } else {
-      cart.push({
-        id: id,
+  $("#saveVariantBtn").click(function () {
+    if (!pendingVariantSelection) {
+      return;
+    }
 
-        qty: 1,
+    const size = $("#variantSize").val();
+    const color = $("#variantColor").val();
+
+    if (!size || !color) {
+      showToast("Please choose both a size and a color.");
+      return;
+    }
+
+    const productId = pendingVariantSelection.productId;
+    const cartIndex = pendingVariantSelection.cartIndex;
+
+    if (cartIndex === null) {
+      const existingItem = cart.find(function (item) {
+        return item.id === productId && item.size === size && item.color === color;
       });
+
+      if (existingItem) {
+        existingItem.qty++;
+      } else {
+        cart.push({
+          id: productId,
+          size: size,
+          color: color,
+          qty: 1,
+        });
+      }
+
+      showToast("Item added to cart!");
+    } else {
+      const item = cart[cartIndex];
+
+      if (!item) {
+        return;
+      }
+
+      const duplicateIndex = cart.findIndex(function (candidate, index) {
+        return (
+          index !== cartIndex &&
+          candidate.id === item.id &&
+          candidate.size === size &&
+          candidate.color === color
+        );
+      });
+
+      if (duplicateIndex >= 0) {
+        cart[duplicateIndex].qty += item.qty;
+        cart.splice(cartIndex, 1);
+      } else {
+        item.size = size;
+        item.color = color;
+      }
+
+      showToast("Product options saved.");
     }
 
     saveCart();
-
     renderCart();
-
-    showToast("Item added to cart!");
+    bootstrap.Modal.getOrCreateInstance(
+      document.getElementById("variantModal"),
+    ).hide();
+    pendingVariantSelection = null;
   });
 
-  /* 
+  /*
    PLUS / MINUS
 */
-
   $(document).on("click", ".qty-btn", function () {
-    let id = Number($(this).data("id"));
-
-    let action = $(this).data("action");
-
-    let item = cart.find(function (x) {
-      return x.id === id;
-    });
+    const cartIndex = Number($(this).data("cart-index"));
+    const item = cart[cartIndex];
+    const action = $(this).data("action");
 
     if (!item) {
       return;
@@ -682,31 +770,26 @@ $(document).ready(function () {
     }
 
     if (item.qty <= 0) {
-      cart = cart.filter(function (x) {
-        return x.id !== id;
-      });
+      cart.splice(cartIndex, 1);
     }
 
     saveCart();
-
     renderCart();
   });
 
   /*
    REMOVE
  */
-
   $(document).on("click", ".remove-btn", function () {
-    let id = Number($(this).data("id"));
+    const cartIndex = Number($(this).data("cart-index"));
 
-    cart = cart.filter(function (item) {
-      return item.id !== id;
-    });
+    if (!Number.isInteger(cartIndex) || !cart[cartIndex]) {
+      return;
+    }
 
+    cart.splice(cartIndex, 1);
     saveCart();
-
     renderCart();
-
     showToast("Item removed from cart.");
   });
 
@@ -731,16 +814,21 @@ $(document).ready(function () {
   $("#buyBtn").click(function () {
     if (cart.length === 0) {
       showToast("Please add items to the cart first.");
+      return;
+    }
 
+    if (cart.some(function (item) {
+      return !item.size || !item.color;
+    })) {
+      showToast("Please choose a size and color for every cart item.");
       return;
     }
 
     let subtotal = 0;
-
     let html = "";
 
     $.each(cart, function (index, item) {
-      let product = products.find(function (p) {
+      const product = products.find(function (p) {
         return p.id === item.id;
       });
 
@@ -748,52 +836,30 @@ $(document).ready(function () {
         return;
       }
 
-      let lineTotal = product.price * item.qty;
-
+      const lineTotal = product.price * item.qty;
       subtotal += lineTotal;
-
-      html += `
-
-                    <div
-                        class="
-                            d-flex
-                            justify-content-between
-                            mb-3
-                        "
-                    >
-
-                        <span>
-
-                            ${product.name}
-
-                            ×
-
-                            ${item.qty}
-
-                        </span>
-
-
-                        <strong>
-
-                            ${money(lineTotal)}
-
-                        </strong>
-
-                    </div>
-
-                `;
+      html +=
+        '<div class="d-flex justify-content-between mb-3">' +
+        '<span>' +
+        product.name +
+        '<br><small class="text-muted">Size: ' +
+        item.size +
+        ' · Color: ' +
+        item.color +
+        '</small><br>× ' +
+        item.qty +
+        '</span>' +
+        "<strong>" +
+        money(lineTotal) +
+        "</strong></div>";
     });
 
-    let gst = Math.round(subtotal * 0.18);
-
-    let total = subtotal + gst;
+    const gst = Math.round(subtotal * 0.18);
+    const total = subtotal + gst;
 
     $("#billDetails").html(html);
-
     $("#billSubtotal").text(money(subtotal));
-
     $("#billGST").text(money(gst));
-
     $("#billTotal").text(money(total));
 
     bootstrap.Offcanvas.getOrCreateInstance(
@@ -805,13 +871,23 @@ $(document).ready(function () {
     ).show();
 
     cart = [];
-
     saveCart();
-
     renderCart();
   });
 
   $("#whatsappOrderBtn").click(function () {
+    if (cart.length === 0) {
+      showToast("Add items to your cart before ordering.");
+      return;
+    }
+
+    if (cart.some(function (item) {
+      return !item.size || !item.color;
+    })) {
+      showToast("Please choose a size and color for every cart item.");
+      return;
+    }
+
     const orderItems = [];
     let subtotal = 0;
 
@@ -827,14 +903,17 @@ $(document).ready(function () {
       const lineTotal = product.price * item.qty;
       subtotal += lineTotal;
       orderItems.push(
-        product.name + " × " + item.qty + " — " + money(lineTotal),
+        product.name +
+          " | Size: " +
+          item.size +
+          " | Color: " +
+          item.color +
+          " × " +
+          item.qty +
+          " — " +
+          money(lineTotal),
       );
     });
-
-    if (orderItems.length === 0) {
-      showToast("Add items to your cart before ordering.");
-      return;
-    }
 
     const gst = Math.round(subtotal * 0.18);
     const total = subtotal + gst;
@@ -847,7 +926,7 @@ $(document).ready(function () {
       "GST (18%): " + money(gst),
       "Total: " + money(total),
       "",
-      "Please confirm availability and delivery details.",
+      "Please confirm size/color availability and delivery details.",
     ].join("\n");
     const whatsappNumber = "919629393679";
     const whatsappUrl =
