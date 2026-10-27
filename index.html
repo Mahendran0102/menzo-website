@@ -643,6 +643,55 @@
       </div>
     </div>
 
+    <!-- PRODUCT SIZE AND COLOR OPTIONS -->
+    <div
+      class="modal fade"
+      id="variantModal"
+      tabindex="-1"
+      aria-labelledby="variantModalTitle"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div>
+              <h5 class="modal-title" id="variantModalTitle">CHOOSE OPTIONS</h5>
+              <p id="variantProductName" class="text-muted small mb-0"></p>
+            </div>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+
+          <div class="modal-body">
+            <label for="variantSize" class="form-label">Size</label>
+            <select id="variantSize" class="form-select mb-3" required></select>
+
+            <label for="variantColor" class="form-label">Color</label>
+            <select id="variantColor" class="form-select" required></select>
+
+            <div class="form-text mt-3">
+              Sample options; MENZO will confirm availability on WhatsApp.
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              data-bs-dismiss="modal"
+            >CANCEL</button>
+            <button type="button" id="saveVariantBtn" class="btn btn-dark">
+              ADD TO BAG
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!--LOGIN -->
 
     <div class="modal fade" id="loginModal" tabindex="-1">
