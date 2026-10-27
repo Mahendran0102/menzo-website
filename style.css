@@ -769,6 +769,25 @@ footer hr {
   text-decoration: underline;
 }
 
+/* SIZE GUIDE */
+
+.size-guide-panel {
+  background: #f8f9fa;
+  border: 1px solid #e6e6e6;
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 13px;
+}
+
+.size-guide-panel table {
+  font-size: 13px;
+}
+
+#sizeGuideToggle {
+  font-size: 13px;
+  text-decoration: none;
+}
+
 /* RESPONSIVE */
 
 @media (max-width: 991px) {
