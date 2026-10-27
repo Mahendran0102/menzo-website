@@ -300,6 +300,41 @@ $(document).ready(function () {
       : topSizes;
   }
 
+  function sizeGuideMarkup(product) {
+    const isBottom =
+      product.category === "jeans" || product.category === "trouser";
+
+    if (isBottom) {
+      const waistRows = bottomSizes
+        .map(function (size) {
+          return (
+            "<tr><td>" +
+            size +
+            " in</td><td>" +
+            Math.round(Number(size) * 2.54) +
+            " cm</td></tr>"
+          );
+        })
+        .join("");
+
+      return (
+        '<p class="mb-2">Waist sizes are listed in inches. Approximate conversion:</p>' +
+        '<div class="table-responsive"><table class="table table-sm mb-2">' +
+        "<thead><tr><th>Waist</th><th>Approx.</th></tr></thead>" +
+        "<tbody>" +
+        waistRows +
+        "</tbody></table></div>" +
+        '<p class="small text-muted mb-0">Measure around your waist where the trousers sit. Fit can vary by style.</p>'
+      );
+    }
+
+    return (
+      '<p class="mb-2">MENZO tops and jackets use S, M, L, XL and XXL labels.</p>' +
+      '<p class="mb-2">Measure around the fullest part of your chest, under your arms. Use a similar garment that fits you well as a reference.</p>' +
+      '<p class="small text-muted mb-0">Exact garment measurements vary by style. Contact us on WhatsApp if you are unsure or between sizes.</p>'
+    );
+  }
+
   function openVariantModal(productId, cartIndex = null) {
     const product = products.find(function (item) {
       return item.id === productId;
@@ -340,6 +375,10 @@ $(document).ready(function () {
           ? colors[0]
           : "",
     );
+    $("#sizeGuidePanel").html(sizeGuideMarkup(product)).addClass("d-none");
+    $("#sizeGuideToggle")
+      .attr("aria-expanded", "false")
+      .text("View size guide");
     $("#saveVariantBtn").text(
       cartIndex === null ? "ADD TO BAG" : "SAVE OPTIONS",
     );
@@ -681,6 +720,16 @@ $(document).ready(function () {
     if (item) {
       openVariantModal(item.id, cartIndex);
     }
+  });
+
+  $("#sizeGuideToggle").click(function () {
+    const panel = $("#sizeGuidePanel");
+    panel.toggleClass("d-none");
+    const expanded = !panel.hasClass("d-none");
+
+    $(this)
+      .attr("aria-expanded", String(expanded))
+      .text(expanded ? "Hide size guide" : "View size guide");
   });
 
   $("#saveVariantBtn").click(function () {
