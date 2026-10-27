@@ -811,6 +811,54 @@ $(document).ready(function () {
     renderCart();
   });
 
+  $("#whatsappOrderBtn").click(function () {
+    const orderItems = [];
+    let subtotal = 0;
+
+    $.each(cart, function (index, item) {
+      const product = products.find(function (p) {
+        return p.id === item.id;
+      });
+
+      if (!product) {
+        return;
+      }
+
+      const lineTotal = product.price * item.qty;
+      subtotal += lineTotal;
+      orderItems.push(
+        product.name + " × " + item.qty + " — " + money(lineTotal),
+      );
+    });
+
+    if (orderItems.length === 0) {
+      showToast("Add items to your cart before ordering.");
+      return;
+    }
+
+    const gst = Math.round(subtotal * 0.18);
+    const total = subtotal + gst;
+    const message = [
+      "Hi MENZO, I’d like to place an order:",
+      "",
+      ...orderItems,
+      "",
+      "Subtotal: " + money(subtotal),
+      "GST (18%): " + money(gst),
+      "Total: " + money(total),
+      "",
+      "Please confirm availability and delivery details.",
+    ].join("\n");
+    const whatsappNumber = "919629393679";
+    const whatsappUrl =
+      "https://wa.me/" +
+      whatsappNumber +
+      "?text=" +
+      encodeURIComponent(message);
+
+    window.open(whatsappUrl, "_blank", "noopener");
+  });
+
   /* 
    FILTER
  */
